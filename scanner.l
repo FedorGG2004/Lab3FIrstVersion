@@ -55,7 +55,3 @@ end { return yy::parser::make_ENDL(); }
 
 [ \t\n\r]+ ; /* ignore whitespace */
 
-%%
-int yywrap(void) {
- return 1;
-}

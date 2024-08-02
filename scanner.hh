@@ -8,7 +8,7 @@
 #undef YY_DECL
 #define YY_DECL yy::parser::symbol_type Scanner::ScanToken()
 
-#include "y.tab.hh"
+#include "grammar.tab.hh"
 
 
 namespace yy {

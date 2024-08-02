@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <string>
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;

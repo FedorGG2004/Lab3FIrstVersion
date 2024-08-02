@@ -18,24 +18,17 @@ class Scanner;
 #include "scanner.hh"
 #include <iostream>
 #include <fstream>
+#include <cstdio>
 
 
-
-extern "C" int yyerror(const char *s) { 
-    std::cout << s << std::endl;
+extern "C" int yyerror(const char *s) {
+	std::cout << s << std::endl;
 };
 
 static yy::parser::symbol_type yylex(Scanner &scanner) {
-    return scanner.ScanToken();
+    return scanner.ScanToken();
 }
 
-}
-
-%lex-param { Scanner &scanner }
-%parse-param { Scanner &scanner }
-
-%{
-    extern FILE * yyin;
     /* prototypes */
     nodeType *opr(int oper, int nops, ...);
     nodeType *id(int i);
@@ -45,10 +38,13 @@ static yy::parser::symbol_type yylex(Scanner &scanner) {
     int exec(nodeType *p);
     int yylex(void);
     void init (void);
-    void yyerror(char *s);  
     int sym[26]; /* symbol table */
     nodeType* addr[26];
-%}
+}
+
+%lex-param { Scanner &scanner }
+%parse-param { Scanner &scanner }
+
 
 %nonassoc END
 %token TYPE
@@ -69,7 +65,8 @@ static yy::parser::symbol_type yylex(Scanner &scanner) {
 %left PLUS MINUS
 %left AND OR
 %nonassoc UMINUS
-%type <nodeType> stmt expr stmt_list function
+%type <nodeType*> stmt expr stmt_list function
+
 %%
 program:
  function {exec($1); freeNode($1); exit(0); }
@@ -81,15 +78,15 @@ function:
 stmt:
  ';' { $$ = opr(';', 2, NULL, NULL); }
  | expr ';' { $$ = $1; }
- | PRINT expr ';' { $$ = opr(PRINT, 1, $2); }
- | TYPE VARIABLE SET expr ';' { $$ = opr(SET, 2, id($2), $4); }
- | VARIABLE SET expr ';' { $$ = opr(SET, 2, id($1), $3); }
- | DO stmt WHILE '(' expr ')' { $$ = opr(DO, 2, $2, $5); }
- | IF '(' expr ')' THEN stmt %prec IFX { $$ = opr(IF, 2, $3, $6); }
- | IF '(' expr ')' THEN stmt ELSE stmt { $$ = opr(IF, 3, $3, $6, $8); }
+ | PRINT expr ';' { $$ = opr(yy::parser::token::PRINT, 1, $2); }
+ | TYPE VARIABLE SET expr ';' { $$ = opr(yy::parser::token::SET, 2, id($2), $4); }
+ | VARIABLE SET expr ';' { $$ = opr(yy::parser::token::SET, 2, id($1), $3); }
+ | DO stmt WHILE '(' expr ')' { $$ = opr(yy::parser::token::DO, 2, $2, $5); }
+ | IF '(' expr ')' THEN stmt %prec IFX { $$ = opr(yy::parser::token::IF, 2, $3, $6); }
+ | IF '(' expr ')' THEN stmt ELSE stmt { $$ = opr(yy::parser::token::IF, 3, $3, $6, $8); }
  | BEG stmt_list ENDL { $$ = $2; }
  | VARIABLE ':' stmt { setlabel ($1, $3); $$ = $3;}
- | FUNCTION VARIABLE ';' { $$ = opr(FUNCTION, 1, id($2));}
+ | FUNCTION VARIABLE ';' { $$ = opr(yy::parser::token::FUNCTION, 1, id($2));}
  ;
 stmt_list:
  stmt { $$ = $1; }
@@ -98,24 +95,24 @@ stmt_list:
 expr:
  INTEGER { $$ = con($1); }
  | VARIABLE { $$ = id($1); }
- | UMINUS expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
- | expr PLUS expr { $$ = opr(PLUS, 2, $1, $3); }
- | expr MINUS expr { $$ = opr(MINUS, 2, $1, $3); }
- | expr OR expr { $$ = opr(OR, 2, $1, $3); }
- | expr AND expr { $$ = opr(AND, 2, $1, $3); }
- | expr L expr { $$ = opr(L, 2, $1, $3); }
- | expr G expr { $$ = opr(G, 2, $1, $3); }
- | expr GE expr { $$ = opr(GE, 2, $1, $3); }
- | expr LE expr { $$ = opr(LE, 2, $1, $3); }
- | expr NE expr { $$ = opr(NE, 2, $1, $3); }
- | expr EQ expr { $$ = opr(EQ, 2, $1, $3); }
+ | UMINUS expr %prec UMINUS { $$ = opr(yy::parser::token::UMINUS, 1, $2); }
+ | expr PLUS expr { $$ = opr(yy::parser::token::PLUS, 2, $1, $3); }
+ | expr MINUS expr { $$ = opr(yy::parser::token::MINUS, 2, $1, $3); }
+ | expr OR expr { $$ = opr(yy::parser::token::OR, 2, $1, $3); }
+ | expr AND expr { $$ = opr(yy::parser::token::AND, 2, $1, $3); }
+ | expr L expr { $$ = opr(yy::parser::token::L, 2, $1, $3); }
+ | expr G expr { $$ = opr(yy::parser::token::G, 2, $1, $3); }
+ | expr GE expr { $$ = opr(yy::parser::token::GE, 2, $1, $3); }
+ | expr LE expr { $$ = opr(yy::parser::token::LE, 2, $1, $3); }
+ | expr NE expr { $$ = opr(yy::parser::token::NE, 2, $1, $3); }
+ | expr EQ expr { $$ = opr(yy::parser::token::EQ, 2, $1, $3); }
  | '(' expr ')' { $$ = $2; }
  ;
 %%
 void
 yy::parser::error(const std::string& m)
 {
-  std::cerr << m << std::endl;
+	std::cerr << m << std::endl;
 }
 
 
@@ -183,12 +180,5 @@ void init (void)
     for (i = 0;i<26;++i)
     sym[i] = 0, addr[i] = 0;
 }
-void yyerror(char *s) {
-    fprintf(stdout, "%s\n", s);
-}
-int main(void) {
-    yyin = fopen ("./test.txt", "r");
-    yyparse();
-    fclose (yyin);
-    return 0;
-}
+
+
