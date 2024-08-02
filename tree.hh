@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map> 
 #include <string>
 typedef enum { typeCon, typeId, typeOpr } nodeEnum;
 /* constants */
@@ -9,7 +10,7 @@ typedef struct {
 } conNodeType;
 /* identifiers */
 typedef struct {
-    int i; /* subscript to sym array */
+    std::string key; /* subscript to sym array */
 } idNodeType;
 /* operators */
 typedef struct {
@@ -29,4 +30,5 @@ typedef struct nodeType{
  };
 } nodeType;
 extern int sym[26];
+extern std::unordered_map<std::string, int> VarInt;
 extern nodeType* addr[26];

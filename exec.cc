@@ -9,7 +9,7 @@ int ex(nodeType *p) {
     if (!lbl)
         switch(p->type) {
         case typeCon: return p->con.value;
-        case typeId: return sym[p->id.i];
+        case typeId: return VarInt[p->id.key];
         case typeOpr:
             switch(p->opr.oper) {
             case yy::parser::token::DO: do {ex(p->opr.op[0]);} while(ex(p->opr.op[1])); return 0;
@@ -19,10 +19,12 @@ int ex(nodeType *p) {
                     ex(p->opr.op[2]);
                 return 0;
             case yy::parser::token::PRINT: if (p->opr.op[0]->type == typeId)
-                printf ("%c = ",p->opr.op[0]->id.i+'a');
-                printf("%d\n", ex(p->opr.op[0])); return 0;
+                std::cout << p->opr.op[0]->id.key << " = "; 
+
+                std::cout << ex(p->opr.op[0]) << std::endl;
+                return 0;
             case ';': ex(p->opr.op[0]); return ex(p->opr.op[1]);
-            case yy::parser::token::SET: return sym[p->opr.op[0]->id.i] = ex(p->opr.op[1]);
+            case yy::parser::token::SET: return VarInt[p->opr.op[0]->id.key] = ex(p->opr.op[1]);
             case yy::parser::token::UMINUS: return -ex(p->opr.op[0]);
             case yy::parser::token::PLUS: return ex(p->opr.op[0]) + ex(p->opr.op[1]);
             case yy::parser::token::MINUS: return ex(p->opr.op[0]) - ex(p->opr.op[1]);
@@ -34,11 +36,11 @@ int ex(nodeType *p) {
             case yy::parser::token::LE: return ex(p->opr.op[0]) <= ex(p->opr.op[1]);
             case yy::parser::token::NE: return ex(p->opr.op[0]) != ex(p->opr.op[1]);
             case yy::parser::token::EQ: return ex(p->opr.op[0]) == ex(p->opr.op[1]);
-            case yy::parser::token::FUNCTION:   if (!addr[p->opr.op[0]->id.i])
-                printf("Identificator '%c' is not detected: - ignore goto!\n", p->opr.op[0]->id.i+'a');
-                                                else
-                    lbl = p->opr.op[0]->id.i;
-                return 0;
+            // case yy::parser::token::FUNCTION:   if (!addr[p->opr.op[0]->id.i])
+            //     printf("Identificator '%c' is not detected: - ignore goto!\n", p->opr.op[0]->id.i+'a');
+            //                                     else
+            //         lbl = p->opr.op[0]->id.i;
+            //     return 0;
             }
         }
     else{

@@ -1,3 +1,13 @@
-int a set 3;
-
-print a;
+qwe set 3;
+print qwe;
+print 10 and 5;
+do
+begin
+    qwe set qwe add 1;
+    print qwe;
+end
+while(qwe smaller 5);
+b set 2 and 2;
+print b;
+c set 193;
+print c;

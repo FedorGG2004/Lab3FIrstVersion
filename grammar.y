@@ -10,6 +10,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdarg.h>
+    #include <string>
     #include "tree.hh"
 class Scanner;
 }
@@ -31,14 +32,15 @@ static yy::parser::symbol_type yylex(Scanner &scanner) {
 
     /* prototypes */
     nodeType *opr(int oper, int nops, ...);
-    nodeType *id(int i);
+    nodeType *id(std::string key);
     nodeType *con(int value);
-    void setlabel (int i ,nodeType *p);
+ /*   void setlabel (int i ,nodeType *p); */
     void freeNode(nodeType *p);
     int exec(nodeType *p);
     int yylex(void);
     void init (void);
     int sym[26]; /* symbol table */
+    std::unordered_map<std::string, int> VarInt;
     nodeType* addr[26];
 }
 
@@ -55,7 +57,7 @@ static yy::parser::symbol_type yylex(Scanner &scanner) {
 %token ENDL
 
 %token <int> INTEGER
-%token <char> VARIABLE
+%token <std::string> VARIABLE
 %token <bool> BOOL
 
 %token DO WHILE IF THEN ELSE PRINT FUNCTION
@@ -85,7 +87,7 @@ stmt:
  | IF '(' expr ')' THEN stmt %prec IFX { $$ = opr(yy::parser::token::IF, 2, $3, $6); }
  | IF '(' expr ')' THEN stmt ELSE stmt { $$ = opr(yy::parser::token::IF, 3, $3, $6, $8); }
  | BEG stmt_list ENDL { $$ = $2; }
- | VARIABLE ':' stmt { setlabel ($1, $3); $$ = $3;}
+/* | VARIABLE ':' stmt { setlabel ($1, $3); $$ = $3;} */
  | FUNCTION VARIABLE ';' { $$ = opr(yy::parser::token::FUNCTION, 1, id($2));}
  ;
 stmt_list:
@@ -129,7 +131,7 @@ nodeType *con(int value) {
     p->con.value = value;
     return p;
 }
-nodeType *id(int i) {
+nodeType *id(std::string key) {
     nodeType *p;
     size_t nodeSize;
     /* allocate node */
@@ -138,7 +140,7 @@ nodeType *id(int i) {
         yyerror("out of memory");
     /* copy information */
     p->type = typeId;
-    p->id.i = i;
+    p->id.key = key;
     return p;
 }
 nodeType *opr(int oper, int nops, ...) {
@@ -169,11 +171,7 @@ void freeNode(nodeType *p) {
     }
     free (p);
 }
-void setlabel (int i,nodeType *p)
-{
-    p->label = i;
-    addr[i] = p;
-}
+
 void init (void)
 {
     int i;

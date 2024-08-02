@@ -40,7 +40,7 @@ end { return yy::parser::make_ENDL(); }
 "function" { return yy::parser::make_FUNCTION(); }
 
 [a-zA-Z][a-zA-Z0-9]*  { 
-                    return yy::parser::make_VARIABLE(*yytext);
+                    return yy::parser::make_VARIABLE(yytext);
                 }
 [0-9]+ {  
                     return yy::parser::make_INTEGER(atoi(yytext));  
