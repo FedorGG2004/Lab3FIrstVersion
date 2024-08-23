@@ -1,0 +1,24 @@
+cell x(z) {
+    int i;
+}
+
+cell five(a) {
+  a set a - 5;
+}
+
+bool work(void) {
+  int x;
+  cell g; 
+  g set empty;
+  x set g;
+  int fgh;
+  fgh set 4 - 20;
+  cell c;
+  c set wall; 
+  bool bz;
+  bz set true;
+  x set bz + 5;
+  void set five(p);
+  int hhhh;
+}
+

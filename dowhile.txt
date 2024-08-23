@@ -1,0 +1,44 @@
+bool work(void) begin
+    a set 7;
+    b set 5;
+    do begin
+        a set a sub 1;
+        b set b add 2;
+    end while (a larger 4);
+        c set a;
+    do begin
+        a set a add 1;
+        b set b add 2;
+    end while (a smaller 8);
+    do begin
+        b set b add 1;
+        a set a sub 1;
+    end while (b smaller 20);
+    void set 5;
+    x set 5;
+    if(x larger 10)
+    then begin
+        x set x add 1;
+    end else begin
+        x set x sub 1;
+    end
+    if(x smaller 10)
+    then begin
+        x set x add 1;
+    end
+    if(x larger 5)
+    then begin
+        x set 0;
+    end
+
+    qwe set 0;
+    if(qwe)
+    then begin
+        qwe set qwe add 1;
+    end
+
+    int zxc;
+    sizeof zxc;
+
+    return void;
+end

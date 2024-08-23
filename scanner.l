@@ -1,6 +1,7 @@
 %{
-#include "scanner.hh"
+#include "scanner.h"
 #include <sstream>
+#include "genericType.h"
 using namespace std;
 %}
 
@@ -10,48 +11,60 @@ using namespace std;
 
 %%
 
-true     { return yy::parser::make_BOOL(true); }
-false     { return yy::parser::make_BOOL(false); }
-undefined     { return yy::parser::make_BOOL(false); }
-bool     { return yy::parser::make_TYPE(); }
-int { return yy::parser::make_TYPE(); }
-short { return yy::parser::make_TYPE(); }
-vector_of { return yy::parser::make_ARRAY(); }
-set { return yy::parser::make_SET(); }
+<<EOF>>     {   yyterminate();  }
 
-sizeof { return yy::parser::make_SIZEOF(); }
+[\n]+       { return yytext[0]; }
 
-add { return yy::parser::make_PLUS(); }
-sub { return yy::parser::make_MINUS(); }
-smaller { return yy::parser::make_L(); }
-larger { return yy::parser::make_G(); }
-not { return yy::parser::make_UMINUS(); }
-or { return yy::parser::make_OR(); }
-and { return yy::parser::make_AND(); }
-begin { return yy::parser::make_BEG(); }
-end { return yy::parser::make_ENDL(); }
+[ \t\r]+    /* skip whitespace */
 
-"do" { return yy::parser::make_DO(); }
-"while" { return yy::parser::make_WHILE(); }
-"if" { return yy::parser::make_IF(); }
-"then" { return yy::parser::make_THEN(); }
-"else" { return yy::parser::make_ELSE(); }
-"print" { return yy::parser::make_PRINT(); }
-"function" { return yy::parser::make_FUNCTION(); }
 
-[a-zA-Z][a-zA-Z0-9]*  { 
-                    return yy::parser::make_VARIABLE(yytext);
-                }
-[0-9]+ {  
-                    return yy::parser::make_INTEGER(atoi(yytext));  
-                }  
-[-()<>=+*/;:{}.] {
- return *yytext;
- }
-">=" { return yy::parser::make_GE(); }
-"<=" { return yy::parser::make_LE(); }
-"==" { return yy::parser::make_EQ(); }
-"!=" { return yy::parser::make_NE(); }
+true        { return yy::parser::make_NUMBER(BoolBase::TRUE);}
+false       { return yy::parser::make_NUMBER(BoolBase::FALSE);}
+undef       { return yy::parser::make_NUMBER(BoolBase::UNDEF);}
 
-[ \t\n\r]+ ; /* ignore whitespace */
+"set"       { return yy::parser::make_SET(); }
+
+"int"       { return yy::parser::make_TYPE(CurType::INT); }
+"bool"      { return yy::parser::make_TYPE(CurType::BOOL); }
+"short"     { return yy::parser::make_TYPE(CurType::SHORT); }
+
+"vector"    { return yy::parser::make_VECTOR(); }
+"of"        { return yy::parser::make_OF(); }
+
+"sizeof"    { return yy::parser::make_SIZEOF(); }
+
+"do"        { return yy::parser::make_DO(); }
+"while"     { return yy::parser::make_WHILE(); }
+"if"        { return yy::parser::make_IF(); }
+"then"      { return yy::parser::make_THEN(); }
+"else"      { return yy::parser::make_ELSE(); }
+"return"    { return yy::parser::make_RET(); }
+
+"begin"     { return yy::parser::make_BEG(); }
+"end"       { return yy::parser::make_ENDL(); }
+"or"        { return yy::parser::make_OR(); }
+"and"       { return yy::parser::make_AND(); }
+
+"smaller"   { return yy::parser::make_SMALLER(); }
+"larger"    { return yy::parser::make_LARGER(); }
+"="         { return yy::parser::make_EQUAL(); }
+
+"add"       { return yy::parser::make_ADD(); }
+"sub"       { return yy::parser::make_SUB(); }
+
+"not"       { return yy::parser::make_UMINUS(); }
+
+"left"       { return yy::parser::make_LEFT(); }
+"right"      { return yy::parser::make_RIGHT(); }
+"move"       { return yy::parser::make_MOVE(); }
+
+[-]*[0-9]+  { return yy::parser::make_NUMBER(atoi(yytext)); }
+
+[a-zA-Z][a-zA-Z0-9]* { return yy::parser::make_IDENTIFIER(yytext); }
+
+[(){};\[\]]     { return yytext[0]; }
+
+.           { cerr << "Non legal character: " << yytext << endl; }
+
+%%
 

@@ -1,0 +1,9 @@
+bool work(void) begin
+    int a;
+    a set 3;
+    int b;
+    b set 1;
+
+    return void;
+end
+
